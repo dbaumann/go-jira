@@ -95,6 +95,10 @@ type GlobalOptions struct {
 	// `username`  The User property is used on Jira service API calls that require a user to associate with
 	// an Issue (like assigning a Issue to yourself)
 	User figtree.StringOption `yaml:"user,omitempty" json:"user,omitempty"`
+
+	// ConsumerKey uniquely identifies you as an OAuth user.
+	// https://wiki.mozilla.org/Privacy/BestPractices/OAuth#Credential_Negotiation
+	ConsumerKey figtree.StringOption `yaml:"consumer-key,omitempty" json:"consumer-key,omitempty"`
 }
 
 type CommonOptions struct {
@@ -221,6 +225,12 @@ func register(app *kingpin.Application, o *oreo.Client, fig *figtree.FigTree) {
 			}
 			if globals.AuthMethod() == "api-token" {
 				o = o.WithCookieFile("")
+			} else if globals.AuthMethod() == "oauth" {
+				oauth, err := NewOAuthTransport(&globals)
+				if err != nil {
+					return err
+				}
+				o = o.WithTransport(*oauth)
 			}
 			if globals.Login.Value == "" {
 				globals.Login = globals.User

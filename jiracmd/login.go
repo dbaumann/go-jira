@@ -51,6 +51,10 @@ func CmdLogin(o *oreo.Client, globals *jiracli.GlobalOptions, opts *jiracli.Comm
 		return nil
 	}
 
+	if globals.AuthMethod() == "oauth" {
+		globals.SetOauthCredentials()
+	}
+
 	ua := o.WithoutRedirect().WithRetries(0).WithoutCallbacks().WithPostCallback(authCallback)
 	for {
 		if session, err := jira.GetSession(o, globals.Endpoint.Value); err != nil {
